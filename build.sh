@@ -4,7 +4,7 @@ set -e
 
 # Build and install Yices 2
 pushd .
-sudo apt-get install -y libgmp-dev gperf
+#sudo apt-get install -y libgmp-dev gperf
 git clone https://github.com/aman-goel/yices2.git
 cd yices2
 autoconf

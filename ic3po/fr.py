@@ -8,7 +8,7 @@
 # ------------------------------------------
 
 from __future__ import print_function
-from cStringIO import StringIO # Python3 use: from io import StringIO
+from io import StringIO # Python3 use: from io import StringIO
 
 import sys
 import os
@@ -824,7 +824,7 @@ def forwardReach(fname):
     utils.start_time = time.time()
     system = TransitionSystem()
     p = FR(system)
-    
+
     read_problem(p, fname)
     print("\t(running: frpo)")
     

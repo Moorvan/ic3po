@@ -1,6 +1,4 @@
 # ------------------------------------------
-# IC3PO: IC3 for Proving Protocol Properties
-# ------------------------------------------
 # Copyright (c) 2021  Aman Goel and Karem Sakallah, University of Michigan. 
 # All rights reserved.
 #
@@ -10,7 +8,6 @@
 from __future__ import print_function
 
 from utils import *
-import pysmt
 from pysmt.shortcuts import TRUE, And, Or, Not, EqualsOrIff, Exists, ForAll, is_sat,\
     Function
 import sys
@@ -52,7 +49,7 @@ def set_trel_formula(self, unbounded):
     res = self.get_formula_qf(res)
     self._trel_formula = res
     return res
-    
+
 def set_prop_formula(self, unbounded):
     propS = self.system.curr._prop
     if not propS:
@@ -68,7 +65,7 @@ def set_prop_formula(self, unbounded):
 
 def set_axiom_formula(self, unbounded):
     axiomS = []
-    
+
     for cl in self._faxioms:
         if unbounded:
             cl = self.system.replaceDefinitions(cl, 1)
@@ -77,26 +74,26 @@ def set_axiom_formula(self, unbounded):
         if unbounded:
             cl = self.system.replaceDefinitions(cl, 1)
         axiomS.append(cl)
-    
+
     if (not unbounded):
         for k, v in self.system.curr._definitions.items():
             axiomS.append(v)
-    
+
     if len(self.system._sort2fin) == len(self.system._sorts):
         if self.ordered == "zero":
             cl = self.system.get_ordered_zero()
             axiomS.append(cl)
-        
+
         if self.ordered == "partial":
             cl = self.system.get_ordered_le()
             axiomS.append(cl)
 #             assert(0)
-        
+
     if self.quorums != "none":
         cl = self.system.get_quorum_axiom()
         axiomS.append(cl)
 #         assert(0)
-        
+
     if not axiomS:
         res = TRUE()
     else:
@@ -123,10 +120,10 @@ def set_problem(self, unbounded=False):
 
 def init_formula(self):
     return self._init_formula
-    
+
 def init_formula_orig(self):
     return self._init_formula_orig
-    
+
 def trel_formula(self):
     return self._trel_formula
 
@@ -233,7 +230,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
     for r in crels:
         print("\t%s" % pretty_serialize(r))
 #     assert(0)
-        
+
     subs = dict()
 #         print(cvars)
 
@@ -245,7 +242,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
             continue
         if self.quorums == "symmetric" and (enumsort in self.system._quorums_parent or enumsort in self.system._quorums_child):
             continue
-        
+
         if self.ordered == "zero" and str(enumsort).startswith("epoch"):
 #             continue
             assert(enumsort in self.system._enumsorts)
@@ -276,10 +273,10 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 cube = And(cube, gt)
 #                 neq = And(Not(EqualsOrIff(v, zero)), Not(EqualsOrIff(v, firste)))
 #                 cube = And(cube, neq)
-#         if (self.quorums != "none" and 
+#         if (self.quorums != "none" and
 #             (str(enumsort).startswith("node") or str(enumsort).startswith("acceptor"))):
 #             continue
-#         if (self.quorums != "none" and 
+#         if (self.quorums != "none" and
 #             (str(enumsort).startswith("quorum"))):
 #             continue
         if enumsort in self.system._enum2qvar:
@@ -291,7 +288,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
             qvar.append(qv)
             enum2qvar[enumsort] = qvar
             subs[v] = qv
-            
+
     antecedent = dict()
     qvars = set()
 #         print(enum2qvar)
@@ -307,7 +304,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                     antecedent[enumsort].append(deq)
 #                         print("adding: %s" % deq)
         qvars.add(qvar[-1])
-    
+
     cubeSym = cube
 
     isorts = dict()
@@ -326,12 +323,12 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 ivars.add(isymbol)
                 qvars.add(isymbol)
         cubeSym = cubeSym.args()[0]
-                
+
     cubeSym = cubeSym.simple_substitute(subs)
     cubeSet = flatten_cube(cubeSym)
-    
+
 #         self.reduce_antecedent(cubeSet, qvars, antecedent, fIdx)
-    
+
     print("(cube: std)")
     for c in cubeSet:
         print("\t%s" % pretty_serialize(c, mode=0))
@@ -341,13 +338,13 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
         antecedent, reduceSz, varSet = self.reduce_antecedent2(cubeSet, qvars, enum2qvar, fIdx)
         self.update_time_stat("time-antecedent", pop_time())
         print()
-    
+
     if self.boost_ordered_en and (self.ordered == "partial"):
         cubeSet = self.boost_ordered(cubeSet, enum2qvar, antecedent, qvars, fIdx)
-        
+
     if self.boost_quorums_en and (self.quorums == "symmetric"):
         cubeSet = self.boost_quorums(cubeSet, enum2qvar, antecedent, qvars, fIdx)
-    
+
     minSz = 3
     if experimentGeneralize:
         minSz = 2
@@ -355,12 +352,12 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
     for enumsort, qvar in enum2qvar.items():
         if  (
 #              False and
-#             (str(enumsort).startswith("acceptor") 
+#             (str(enumsort).startswith("acceptor")
 #              or str(enumsort).startswith("node")
 #             or str(enumsort).startswith("quorum")
-#             ) and 
-#             (str(enumsort).startswith("quorum")) and 
-            (len(qvar) >= minSz) and 
+#             ) and
+#             (str(enumsort).startswith("quorum")) and
+            (len(qvar) >= minSz) and
             (len(qvar) == len(self.system._enum2qvar[enumsort]))):
             fullsorts.append([enumsort, qvar])
 
@@ -369,23 +366,23 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
         eqMap, cubeSet, antecedent, fullsorts = self.propagate_eq(cubeSet, antecedent, ivars, qvars, fullsorts)
 
     self.print_fullsorts(fullsorts)
-    
+
     if True:
         cubeSetSimple = cubeSet.copy()
         for v in antecedent.values():
             for c in v:
                 cubeSetSimple.add(c)
-                
+
         cubeSimple = And(cubeSetSimple)
         if len(qvars) != 0:
             cubeSimple = Exists(qvars, cubeSimple)
-                
+
         cubesOut = list()
         if (self.system.gen == "univ") or (len(fullsorts) == 0) or (len(crels) <= 1) or (len(cubeSet) < minSz):
             cubesOut.append((cubeSimple, "univ"))
         else:
-            uqvars = set()        
-            
+            uqvars = set()
+
             cubeSet2 = cubeSet.copy()
             for fs in fullsorts:
                 enumsort = fs[0]
@@ -393,7 +390,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 qvarSet = set()
                 for q in qvar:
                     qvarSet.add(q)
-                
+
                 qvart = fs[0]
                 uSymbol = Symbol("V:"+str(qvart), qvart)
                 qv2cubes = {}
@@ -401,7 +398,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 for q in qvar:
                     qv2cubes[q] = set()
                     qv2ucubes[q] = set()
-                
+
                 ucubes = set()
                 for c in cubeSet:
                     cvars = c.get_free_variables()
@@ -420,7 +417,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 print("qv2ucubes #%d" % len(qv2ucubes))
                 for k, v in qv2ucubes.items():
                     print("\t%s -> %s" % (pretty_serialize(k), pretty_print_set(v, mode=0)))
-                
+
                 ucubes2qv = {}
                 emptyIdx = 1
                 for qv, ucubes in qv2ucubes.items():
@@ -469,7 +466,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                     if qvar[0].is_symbol():
                         uqvars.add(qvar[0])
                     antecedent.pop(enumsort, None)
-                    
+
                     for cubes in qv2cubes.values():
                         for cube in cubes:
                             cubeSet2.discard(cube)
@@ -479,15 +476,15 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         uc = uc.simple_substitute(tmp_subs)
                         ucList = flatten_cube(uc)
                         for v in ucList:
-                            cubeSet2.add(v)                
+                            cubeSet2.add(v)
                     for q in qvar:
                         qvars.discard(q)
                     cubeSet = cubeSet2
-                elif (ncells == (nsingles + nmultiples) 
+                elif (ncells == (nsingles + nmultiples)
                       and nmultiples == 1
                       and nsingles == 1
                       ):
-#                 elif (len(ucubes2qv) == 2 
+#                 elif (len(ucubes2qv) == 2
 #                       and (len(qvar) > minSz)
 # #                           and (not self.system.is_epr())
 #                     ):
@@ -510,7 +507,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                     if len(qsingle) != 0 and qmulti != None:
                         ucsingle = {}
                         ucmulti = set()
-                        
+
                         for qs in qsingle:
                             ucsingle[qs] = set()
                             tmp_subs = {}
@@ -524,7 +521,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         for uc in qv2ucubes[qm]:
                             uc = uc.simple_substitute(tmp_subs)
                             ucmulti.add(uc)
-                            
+
                         print("ucsingle:")
                         for k, rhs in ucsingle.items():
                             print("\t%s:" % pretty_serialize(k))
@@ -533,7 +530,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         print("ucmulti:")
                         for v in ucmulti:
                             print("\t%s" % pretty_serialize(v))
-                            
+
                         if qm.is_symbol():
                             uqvars.add(qm)
                         if enumsort in antecedent:
@@ -546,12 +543,12 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                             antecedent.pop(enumsort, None)
                             if len(newAnt) != 0:
                                 antecedent[enumsort] = newAnt
-                        
+
                         for q in qmulti:
                             for cube in qv2cubes[q]:
                                 cubeSet2.discard(cube)
 #                             for v in ucsingle:
-#                                 cubeSet2.add(v)                
+#                                 cubeSet2.add(v)
                         for q in qmulti:
                             qvars.discard(q)
                         eqM = []
@@ -562,7 +559,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                             vNew = Or(sEqm, v)
                             cubeSet2.add(vNew)
                         cubeSet = cubeSet2
-                
+
             eqvars2 = set()
             forwardArcs = 0
             reverseArcs = 0
@@ -591,7 +588,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
             for v in antecedent.values():
                 for c in v:
                     cubeSet.add(c)
-            
+
             cubesOut = list()
             if (self.system.gen == "fef") and (len(uqvars) != 0) and (len(eqvars2) != 0):
                 fancy = "fef"
@@ -634,7 +631,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
 #                     notCubeSym_formulaList = flatten_and(notCubeSym_formula)
 #                     for v in notCubeSym_formulaList:
 #                         print("\t\t%s" % pretty_serialize(v))
-                    
+
                     solver = self.get_framesolver(fIdx)
                     cubeSym_formula = self.get_formula_qf(cubeSym)
                     print("\t(#%d: quantifier-rearrangement) " % count, end="")
@@ -649,7 +646,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         break
                 assert(len(cubesOut) != 0)
                 cubesOut.reverse()
-                
+
 #                 if len(cubesOut) == 0:
 #                     preCube = set()
 #                     postCube = set()
@@ -704,14 +701,14 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                     cubeSym = ForAll(uqvars, cubeSym)
                 if len(preCube) != 0:
                     cubeSym = And(And(preCube), cubeSym)
-                if len(qvars) != 0: 
+                if len(qvars) != 0:
                     cubeSym = Exists(qvars, cubeSym)
-                
+
                 fancy = "univ"
                 if (len(uqvars) != 0):
                     fancy = "epr"
                 cubesOut.append((cubeSym, fancy))
-                
+
                 if fancy:
                     if len(eqvars2) != 0:
                         cubeSym2 = And(postCube)
@@ -727,13 +724,13 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         print("\t%s" % pretty_serialize(Not(cubeSym), mode=0))
                         print("(non-epr version)")
                         print("\t%s" % pretty_serialize(Not(cubeSym2), mode=0))
-                        
+
                         result = False
                         if (reverseArcs != 0):
                             print("\tBoth verions not allowed!")
                             if (self.system.gen == "epr_strict"):
                                 result = True
-                            
+
                         if not result:
                             solver = self.get_framesolver(fIdx)
                             print("(epr-reduction) ", end="")
@@ -742,7 +739,7 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                         if result:
                             print("\tEPR-reduction is not allowed!")
                             cubesOut.pop()
-                            
+
                             if (self.system.gen == "epr_strict") or (self.system.gen == "epr_loose"):
                                 print("\tLearning universal version instead.")
                                 cubesOut.append((cubeSimple, "univ"))
@@ -756,17 +753,17 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
                 cubeTop = cubesOut[i]
                 cubeEq = self.propagate_eq_post(cubeTop[0])
                 cubesOut[i] = (cubeEq, cubeTop[1])
-    
+
         print("(boosted clause)")
         print("\t%s" % pretty_serialize(Not(cubesOut[0][0]), mode=0))
-        
+
         print("---------------------------")
         print("(original clause)")
         print("\t%s" % cube_str)
         print("(learnt sym-boosted clause)")
         print("\t%s" % pretty_serialize(Not(cubesOut[0][0]), mode=0))
         print("---------------------------")
-        
+
         if self.exp:
             cubeTop = cubesOut[0]
             cubeNew = cubeTop[0]
@@ -776,12 +773,12 @@ def symmetry_cube(self, cube, fIdx, reducePremise, dest=None):
             cubesOut[0] = (cubeNew, cubeTop[1])
     else:
         cubesOut = get_uniform(self, fullsorts, cubeSet, qvars, antecedent)
-    
+
     return cubesOut
 
 def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
 #         print("fullsorts: %s" % (fullsorts))
-    uqvars = []        
+    uqvars = []
     eqvars2 = []
     subs = dict()
 
@@ -795,7 +792,7 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
             for q in qvar:
                 qvarSet.add(q)
                 subs[q] = qvar[0]
-                
+
             isUniform = True
             uniformSet = dict()
             otherPresent = False
@@ -817,7 +814,7 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
                     isUniform = False
                 elif len(cqvars) == 0:
                     otherPresent = True
-                        
+
             ucList = []
             if isUniform:
                 for uc, clist in uniformSet.items():
@@ -845,14 +842,14 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
                 for k, clist in uniformSet.items():
                     for c in clist:
                         cubeSet.remove(c)
-                
+
                 uqvars.append(qvar[0])
                 for uc in ucList:
                     cubeSet.add(uc)
                 antecedent.pop(efs)
                 for q in qvar:
                     eqvars.remove(q)
-                    
+
     if len(uqvars) != 0:
         for u in eqvars:
             ut = u.symbol_type()
@@ -863,11 +860,11 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
         for u in eqvars2:
             if u in eqvars:
                 eqvars.remove(u)
-                      
+
     for k, v in antecedent.items():
         for i in v:
             cubeSet.add(i)
-    
+
     preCube = set()
     postCube = set()
     if len(uqvars) == 0:
@@ -887,7 +884,7 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
                 postCube.add(c)
 #             print("pre : %s" % preCube)
 #             print("post: %s" % postCube)
-    
+
     cubeSym = And(postCube)
     if len(eqvars2) != 0:
         cubeSym = Exists(eqvars2, cubeSym)
@@ -900,15 +897,15 @@ def get_uniform(self, fullsorts, cubeSet, eqvars, antecedent):
         cubeSym = And(And(preCube), cubeSym)
     if len(eqvars) != 0:
         cubeSym = Exists(eqvars, cubeSym)
-    
+
     cubesOut = list()
     fancy = (len(uqvars) != 0)
     cubesOut.append((cubeSym, fancy))
-    
+
 #     if complex:
 #         pretty_print(cubeSym)
 #         assert(0)
-        
+
     return cubesOut
 
 def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar):
@@ -916,7 +913,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
     uqvars = []
     eqvars2 = []
     subs = dict()
-    
+
     uniformed = False
     if len(fullsorts) != 0:
         cubeSetSym = set()
@@ -934,9 +931,9 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
 #             cubeSetSym.add(cubeSym)
 #             if cubeSym != cube:
 #                 uniformed = True
-            
+
 #         subs.clear()
-        
+
     for k, v in antecedent.items():
         for i in v:
             cubeSet.add(i)
@@ -945,14 +942,14 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
         cubeSym = Exists(eqvars, cubeSym)
     cubesOut = list()
     cubesOut.append((cubeSym, False))
-    
+
     for fs in fullsorts:
         qvart = fs[0]
         qvar = fs[1]
         qvarSet = set()
         for q in qvar:
             qvarSet.add(q)
-        
+
         uSymbol = Symbol("V:"+str(qvart), qvart)
         qv2cubes = {}
         qv2ucubes = {}
@@ -978,7 +975,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
 #         print("qv2ucubes #%d" % len(qv2ucubes))
 #         for k, v in qv2ucubes.items():
 #             print("\t%s -> %s" % (k, v))
-        
+
         ucubes2qv = {}
         for qv, ucubes in qv2ucubes.items():
             uc = And(ucubes)
@@ -988,7 +985,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
         print("ucubes2qv #%d" % len(ucubes2qv))
         for k, v in ucubes2qv.items():
             print("\t%s -> %s" % (k, v))
-        
+
         nump = len(ucubes2qv)
         assert(nump != 0)
         if nump == 1:
@@ -1023,7 +1020,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
 #                     for cube in cubes:
 #                         cubeSetSym.discard(cube)
 #                         cubeRem.add(cube)
-# 
+#
 #                 uqs = ucubes2qv[uc]
 #                 uq = sorted(uqs, key=str)[0]
 #                 qvars_new = set()
@@ -1053,10 +1050,10 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
 #                 uqvars.append(uq)
 #                 antecedent.pop(qvar[0])
 #                 qvars_new.add(uq)
-    
+
     if len(uqvars) == 0:
         return cubesOut
-    
+
     for k, v in antecedent.items():
         for i in v:
             cubeSetSym.add(i)
@@ -1070,7 +1067,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
     for u in eqvars2:
         if u in eqvars:
             eqvars.remove(u)
-    
+
     preCube = set()
     postCube = set()
     postVars = set()
@@ -1085,7 +1082,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
             preCube.add(c)
         else:
             postCube.add(c)
-    
+
     cubeSym = And(postCube)
     if len(eqvars2) != 0:
         cubeSym = Exists(eqvars2, cubeSym)
@@ -1094,7 +1091,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
         cubeSym = And(And(preCube), cubeSym)
     if len(eqvars) != 0:
         cubeSym = Exists(eqvars, cubeSym)
-        
+
     print("uniform: %s\n\t" % uqvars, end="")
     pretty_print(cubeSym)
 
@@ -1102,7 +1099,7 @@ def get_uniform2(self, fullsorts, cubeSet, eqvars, antecedent, varSet, enum2qvar
         cubesOut.pop()
     fancy = (len(uqvars) != 0)
     cubesOut.insert(0, (cubeSym, fancy))
-        
+
     return cubesOut
 
 def print_sizes1(self, key):
@@ -1125,7 +1122,7 @@ def print_sizes2(self, key):
                 break
         val += "|%s|=%s;" % (s_inf, ("inf" if sz == 0 else str(sz)))
     print_stat(key, val)
-            
+
 def print_sizes3(self):
     val = ""
     for s_inf in sorted(self.system._sorts, key=str):
@@ -1140,7 +1137,7 @@ def print_num_state_bits1(self, key):
     tsb = self.system.get_num_state_bits()
     val = "%s" % ("inf" if tsb <= 0 else str(tsb))
     print_stat(key, val)
-            
+
 def print_num_state_bits2(self, key, tsb):
     val = "%s" % ("inf" if tsb <= 0 else str(tsb))
     print_stat(key, val)

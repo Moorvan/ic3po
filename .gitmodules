@@ -6,4 +6,4 @@
 	url = https://github.com/aman-goel/ivy
 [submodule "ivybench"]
 	path = ivybench
-	url = https://github.com/aman-goel/ivybench
+	url = https://github.com/Moorvan/ivybench

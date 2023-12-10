@@ -3639,8 +3639,8 @@ class PDR(object):
                 assumptions.append(assumption)
         assumptions = self.get_formulae(assumptions)
         
-        assumptions = sorted(assumptions, key=lambda v: (self.system.get_dependency_priority(v, self.use_wires), str(v)))
-#         assumptions = sorted(assumptions, key=lambda v: str(v))
+        # assumptions = sorted(assumptions, key=lambda v: (self.system.get_dependency_priority(v, self.use_wires), str(v)))
+        assumptions = sorted(assumptions, key=lambda v: str(v))
 
 #         if self.eval_wires and self.use_wires:
 #             assumptions = self.eval_engine.process_model(assumptions)
@@ -4250,8 +4250,17 @@ def backwardReach(fname, system=None):
         eprint(time_str(), "(running ic3po with %d inferences)" % len(p.system.curr._infers))
 
     set_problem(p)
+
+    s = Solver()
+    s.add_assertion(trel_formula(p))
+    s.push()
+
+    ss = Solver()
+    ss.add_assertion(trel_formula(p))
+    ss.push()
+
     set_solver(p)
-    
+
     print_sizes1(p, "finite-size-init")
     print_stat("opt-antecedent", "true" if common.gopts.opt > 0 else "false")
     print_num_state_bits1(p, "total-state-bits-init")

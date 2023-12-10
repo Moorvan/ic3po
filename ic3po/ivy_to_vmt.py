@@ -15,7 +15,7 @@ from ivy import ivy_actions as ia
 from ivy import logic as lg
 from ivy import ivy_printer as ip
 
-from ivy.ivy_logic import UninterpretedSort, UnionSort
+from ivy.ivy_logic import UninterpretedSort, UnionSort, EnumeratedSort, BooleanSort
 from ivy import ivy_logic_utils as lut
 from ivy import ivy_art
 from ivy import ivy_interp as itp
@@ -151,17 +151,27 @@ class print_module_vmt():
             fprint("")
         
     def process_sig(self):
-        for name,sort in ivy_logic.sig.sorts.iteritems():
-            if name == 'bool':
-                continue
-            if not isinstance(sort,UninterpretedSort):
-                assert("todo")
-            res = ''
-            res += '(declare-sort {} 0)'.format(name)
-            self.sorts[sort] = 0
-            self.str[str(sort)] = res
-            
+        for name, sort in ivy_logic.sig.sorts.iteritems():
+            if isinstance(sort, UninterpretedSort):
+                res = ''
+                res += '(declare-sort {} 0)'.format(name)
+                self.sorts[sort] = 0
+                self.str[str(sort)] = res
+            elif isinstance(sort, EnumeratedSort):
+                res = '(declare-datatypes () (({} {})))'.format(name, ' '.join('{}'.format(c) for c in sort.extension))
+                self.sorts[sort] = len(sort.extension)
+                self.str[str(sort)] = res
+            # elif isinstance(sort, BooleanSort):
+            #     res = ''
+            #     res += '(declare-sort {} Bool)'.format(name)
+            #     self.sorts[sort] = 0
+            #     self.str[str(sort)] = res
+            else:
+                pass
+
         for sym in ivy_logic.sig.symbols.values():
+            if isinstance(sym.sort, EnumeratedSort):
+                continue
             if isinstance(sym.sort,UnionSort):
                 assert("todo")
             
@@ -428,7 +438,7 @@ class print_module_vmt():
             suffix += ' '.join('{}'.format(s) for idx,s in enumerate(sort.dom))
         suffix += ")"
         if not sort.is_relational():
-            suffix += ' {}'.format(sort.rng)
+            suffix += ' {}'.format(sort.rng.name)
         else:
             suffix += ' Bool'
         suffix += ')'
@@ -445,7 +455,7 @@ class print_module_vmt():
                 prenex += ' '.join('(V{} {})'.format(idx, s) for idx,s in enumerate(sort.dom))
             prenex += ")"
             if not sort.is_relational():
-                prenex += ' {}'.format(sort.rng)
+                prenex += ' {}'.format(sort.rng.name)
             else:
                 prenex += ' Bool'
             prenex += ' (! '
@@ -470,7 +480,7 @@ class print_module_vmt():
             prenex += ' '.join('({} {})'.format(args[idx], s) for idx,s in enumerate(sort.dom))
         prenex += ")"
         if not sort.is_relational():
-            prenex += ' {}'.format(sort.rng)
+            prenex += ' {}'.format(sort.rng.name)
         else:
             prenex += ' Bool'
         
@@ -491,7 +501,7 @@ class print_module_vmt():
             prenex += ' '.join('(V{} {})'.format(idx, s) for idx,s in enumerate(sort.dom))
         prenex += ")"
         if not sort.is_relational():
-            prenex += ' {}'.format(sort.rng)
+            prenex += ' {}'.format(sort.rng.name)
         else:
             prenex += ' Bool'
         prenex += ' (! '

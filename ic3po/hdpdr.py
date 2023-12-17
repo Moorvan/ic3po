@@ -53,11 +53,16 @@ if __name__ == '__main__':
     print "Checking %s" % fname
     system = TransitionSystem()
     p = PDR(system)
+
     read_problem(p, fname)
     set_problem(p)
+
     helpers = set()
     set_solver(p)
+
     inv_set_l, cex = p.check_property(helpers)
+    print "Result inv set: %s" % inv_set_l
+    print "Result cex: %s" % cex
 
 
 

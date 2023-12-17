@@ -1,4 +1,3 @@
-import sys
 from ic3po import *
 import argparse
 
@@ -47,6 +46,7 @@ def getopts(header):
     return p.parse_args()
 
 if __name__ == '__main__':
+    global start_time
     common.initialize()
     common.gopts = getopts("HDPDR")
     fname = common.gopts.file

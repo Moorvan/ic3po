@@ -30,6 +30,7 @@ class System():
     
     def reset(self):
         self._init = set()
+        self._trans = set()
         self._axiom = set()
         self._prop = set()
         self._vars = set()
@@ -90,6 +91,9 @@ class System():
 
     def add_init(self, formula):
         self._init.add(formula)
+
+    def add_trans(self, formula):
+        self._trans.add(formula)
 
     def add_axiom(self, formula):
         if (formula.is_and()):
@@ -300,6 +304,9 @@ class System():
         self.add_action(noop_all, noop_name)
         
     def add_trel_new(self):
+        if len(self._trans) != 0:
+            self._trel = And(self._trans)
+            return
         eprint("\t(found #%d actions)" % len(self._actions))
         print("\t(found #%d actions)" % len(self._actions))
         if len(self._actions) == 0:
@@ -1267,13 +1274,14 @@ class TransitionSystem(SmtLibParser):
                     self._parent_sort[tA] = tQ
                     self._child_sort.add(tQ)
                     print("\t(found sort dependency: %s -> %s)" % (tA, tQ))
-        
     def read_ts(self, script_ss):
         script = self._parser.get_script(script_ss)
         ann = script.annotations.get_annotations()
 
         for f, amap in ann.items():
             for a, lst in amap.items():
+                if a == "trans":
+                    self.orig.add_trans(f)
                 if a == "sort":
                     for v in lst:
                         sz = v
@@ -1282,6 +1290,7 @@ class TransitionSystem(SmtLibParser):
                         self.add_sort(f.symbol_type(), sz)
                 if a == "init":
                     self.orig.add_init(f)
+                # if a ==
                 if a == "axiom":
                     for v in lst:
                         self.orig.add_axiom(f)

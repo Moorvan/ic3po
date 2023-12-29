@@ -159,13 +159,16 @@ class print_module_vmt():
                 self.str[str(sort)] = res
             elif isinstance(sort, EnumeratedSort):
                 res = '(declare-datatypes () (({} {})))'.format(name, ' '.join('{}'.format(c) for c in sort.extension))
-                self.sorts[sort] = len(sort.extension)
+                self.sorts[name] = 0
+                # for c in sort.extension:
+                #     self.str[str(c)] = str(c)
+                self.str[name] = res
+                # self.str[str(sort)] = res
+            elif isinstance(sort, BooleanSort):
+                res = ''
+                res += '(declare-sort {} Bool)'.format(name)
+                self.sorts[sort] = 0
                 self.str[str(sort)] = res
-            # elif isinstance(sort, BooleanSort):
-            #     res = ''
-            #     res += '(declare-sort {} Bool)'.format(name)
-            #     self.sorts[sort] = 0
-            #     self.str[str(sort)] = res
             else:
                 pass
 
@@ -402,7 +405,7 @@ class print_module_vmt():
                     subs[c] = self.nex2pre[c]
 #             elif False and (c not in self.pre):
             elif c not in self.pre:
-                if (not c.sort.dom) and (c.sort != lg.Boolean):
+                if (not c.sort.dom) and (c.sort != lg.Boolean) and (not isinstance(c.sort, EnumeratedSort)):
                     vname = "V"+c.name
 #                     vname = vname.replace(":", "")
                     qv = lg.Var(vname, c.sort)
